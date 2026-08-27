@@ -5,6 +5,7 @@ import 'screens/HomePage.dart';
 import 'screens/LoginScreen.dart';
 
 void main() {
+  // debugPaintSizeEnabled = true;
   runApp(const MyApp());
 }
 
