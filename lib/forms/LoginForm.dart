@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Loginform extends StatelessWidget {
-  const Loginform({Key}) : super(key: Key);
+  const Loginform({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Container(
-        // decoration: BoxDecoration(border: Border.all(color: Colors.blue)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
             // ---------------------------------------------------
             // Welcome
             // ---------------------------------------------------
@@ -99,7 +96,7 @@ class Loginform extends StatelessWidget {
               height: 55,
               child: ElevatedButton(
                 onPressed: () {
-                  print("Login clicked");
+                  debugPrint('Login clicked');
                 },
                 child: const Text('Login'),
               ),
@@ -154,9 +151,7 @@ class Loginform extends StatelessWidget {
             ),
 
             // const SizedBox(height: 30),
-          ],
-        ),
-      ),
+      ],
     );
   }
 }
