@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/features/products/presentation/screens/product_details_screen.dart';
 import 'package:my_app/widgets/themes.dart';
 
 import "utils//routes.dart";
@@ -25,6 +26,21 @@ class MyApp extends StatelessWidget {
       routes: {
         CustomRoutes.homeRoute: (context) => const Homepage(),
         CustomRoutes.loginRoute: (context) => const LoginScreen(),
+      },
+
+      // Add onGenerateRoute to handle dynamic arguments intercepting
+      onGenerateRoute: (settings) {
+        if (settings.name == CustomRoutes.productDetailsRoute) {
+          // Extract the integer ID passed from ProductCard
+          final productId = settings.arguments as int;
+
+          return MaterialPageRoute(
+            builder: (context) => ProductDetailsScreen(productId: productId),
+          );
+        }
+
+        // Return null so it falls back to static routes if no dynamic match is found
+        return null;
       },
     );
   }

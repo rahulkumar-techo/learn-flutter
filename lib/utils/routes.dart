@@ -1,4 +1,5 @@
 class CustomRoutes {
-  static String homeRoute = '/';
-  static String loginRoute = '/login';
+  static const String homeRoute = '/';
+  static const String loginRoute = '/login';
+  static const String productDetailsRoute = '/product-details';
 }
