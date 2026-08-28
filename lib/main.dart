@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:my_app/widgets/themes.dart';
 
 import "utils//routes.dart";
 import 'screens/HomePage.dart';
@@ -18,12 +18,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
 
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        textTheme: GoogleFonts.poppinsTextTheme(),
-      ),
-
+      theme: MyTheme.lightTheme(context),
+      darkTheme: MyTheme.darkTheme(),
       initialRoute: '/',
 
       routes: {

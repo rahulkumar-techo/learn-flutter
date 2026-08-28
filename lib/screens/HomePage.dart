@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/screens/LoginScreen.dart';
+import 'package:my_app/widgets/drawer.dart';
 
 class Homepage extends StatelessWidget {
   // Cleaned up the constructor syntax using standard Flutter patterns
@@ -8,14 +9,17 @@ class Homepage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("My App")),
+      appBar: AppBar(
+        title: const Text("My App"),
+        centerTitle: true,
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text("Home Page"),
             const SizedBox(height: 16),
-            // Button to redirect to login screen 
+            // Button to redirect to login screen
             ElevatedButton(
               onPressed: () => {
                 Navigator.push(
@@ -28,7 +32,7 @@ class Homepage extends StatelessWidget {
           ],
         ),
       ),
-      drawer: const Drawer(),
+      drawer: MenuDrawer(),
     );
   }
 }

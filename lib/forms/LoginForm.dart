@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_app/utils/routes.dart';
 
-// 1. Capitalized class name to adhere to Dart PascalCase conventions
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
 
@@ -11,194 +10,224 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
-  String email = "";
-  String password = "";
-  String errorMessage = "";
-  bool hasError = false;
+  final _formKey = GlobalKey<FormState>();
 
-  bool checkLoginValidation() {
-    // 2. Wrapped mutation in setState so the UI clears old errors immediately
+  String _email = "";
+  String _password = "";
+  String _errorMessage = "";
+  bool _hasError = false;
+  bool _obscurePassword = true; // Changed to true so password starts hidden
+
+  void _handleFormValidation() {
+    // Reset general form error before validating fields
     setState(() {
-      errorMessage = "";
-      hasError = false;
+      _hasError = false;
+      _errorMessage = "";
     });
 
-    if (email.trim().isEmpty) {
-      setState(() {
-        errorMessage = "Email cannot be empty";
-        hasError = true;
-      });
-      return false;
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      // Inputs are valid; navigate to home screen
+      Navigator.pushNamed(context, CustomRoutes.homeRoute);
     }
-
-    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email.trim())) {
-      setState(() {
-        errorMessage = "Please enter a valid email address";
-        hasError = true;
-      });
-      return false;
-    }
-
-    if (password.trim().isEmpty) {
-      setState(() {
-        errorMessage = "Password cannot be empty";
-        hasError = true;
-      });
-      return false;
-    }
-
-    return true;
   }
-
+  
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Center(
-          child: Text(
-            'Welcome 👋',
-            style: GoogleFonts.poppins(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        const SizedBox(height: 30),
+    final theme = Theme.of(context);
 
-        Text('Email', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-        const SizedBox(height: 8),
-        TextField(
-          keyboardType: TextInputType.emailAddress, // Native email keyboard layout
-          decoration: InputDecoration(
-            hintText: 'Enter your email',
-            prefixIcon: const Icon(Icons.email_outlined),
-            filled: true,
-            // 3. Replaced bright solid red background with a subtle error border style
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(
-                color: hasError ? Colors.red.shade700 : Colors.transparent,
-                width: 1.5,
+    // Shared styling for input borders
+    final inputBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide.none,
+    );
+
+    final errorBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide(color: Colors.red.shade700, width: 1.5),
+    );
+
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Text(
+              'Welcome 👋',
+              style: GoogleFonts.poppins(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(
-                color: hasError ? Colors.red.shade700 : Colors.transparent,
-                width: 1.5,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(
-                color: hasError ? Colors.red.shade700 : Theme.of(context).primaryColor,
-                width: 1.5,
-              ),
-            ),
-            
           ),
-          onChanged: (value) {
-            setState(() {
-              email = value;
-            });
-          },
-        ),
-        const SizedBox(height: 20),
+          const SizedBox(height: 30),
 
-        Text(
-          'Password',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          obscureText: true,
-          decoration: InputDecoration(
-            hintText: 'Enter your password',
-            prefixIcon: const Icon(Icons.lock_outline),
-            filled: true,
-            fillColor: Colors.white,
-            // Uses standard invisible border unless modified globally
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide.none,
-            ),
-          ),
-          onChanged: (value) {
-            setState(() {
-              password = value;
-            });
-          },
-        ),
-
-        // 4. Inline error message rendering block
-        if (hasError) ...[
-          const SizedBox(height: 12),
           Text(
-            errorMessage,
-            style: GoogleFonts.poppins(
-              color: Colors.red.shade700,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+            'Email',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          TextFormField(
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+            decoration: InputDecoration(
+              hintText: 'Enter your email',
+              prefixIcon: const Icon(Icons.email_outlined),
+              filled: true,
+              fillColor: Colors.white,
+              border: inputBorder,
+              enabledBorder: inputBorder,
+              focusedBorder: inputBorder.copyWith(
+                borderSide: BorderSide(color: theme.primaryColor, width: 1.5),
+              ),
+              errorBorder: errorBorder,
+              focusedErrorBorder: errorBorder,
+              // Hides the standard redundant bottom error text since you use a custom summary block
+              errorStyle: const TextStyle(fontSize: 0, height: 0),
+            ),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                setState(() {
+                  _errorMessage = "Email cannot be empty";
+                  _hasError = true;
+                });
+                return "";
+              }
+              final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+              if (!emailRegex.hasMatch(value.trim())) {
+                setState(() {
+                  _errorMessage = "Please enter a valid email address";
+                  _hasError = true;
+                });
+                return "";
+              }
+              return null;
+            },
+       
+            onSaved: (value) => _email = value?.trim() ?? "",
+          ),
+          const SizedBox(height: 20),
+
+          // Password input filed with password display and hide
+          Text(
+            'Password',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          TextFormField(
+            obscureText: _obscurePassword,
+            textInputAction: TextInputAction.done,
+            onFieldSubmitted: (_) => _handleFormValidation(),
+            decoration: InputDecoration(
+              hintText: 'Enter your password',
+              prefixIcon: const Icon(Icons.lock_outline),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _obscurePassword
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscurePassword = !_obscurePassword;
+                  });
+                },
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              border: inputBorder,
+              enabledBorder: inputBorder,
+              focusedBorder: inputBorder.copyWith(
+                borderSide: BorderSide(color: theme.primaryColor, width: 1.5),
+              ),
+              errorBorder: errorBorder,
+              focusedErrorBorder: errorBorder,
+              errorStyle: const TextStyle(fontSize: 0, height: 0),
+            ),
+
+            // Input Validator , Validate input Values
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                setState(() {
+                  _errorMessage = "Password cannot be empty";
+                  _hasError = true;
+                });
+                return "";
+              }
+              return null;
+            },
+            onSaved: (value) => _password = value?.trim() ?? "",
+          ),
+
+          // Display This Weidget when error happens
+          if (_hasError) ...[
+            const SizedBox(height: 12),
+            Text(
+              _errorMessage,
+              style: GoogleFonts.poppins(
+                color: Colors.red.shade700,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+          const SizedBox(height: 10),
+
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () {},
+              child: const Text('Forgot Password?'),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          SizedBox(
+            width: double.infinity,
+            height: 55,
+            child: ElevatedButton(
+              onPressed: _handleFormValidation,
+              child: const Text('Login'),
+            ),
+          ),
+          const SizedBox(height: 25),
+
+          Row(
+            children: [
+              // Streach lin like : -----------OR------------
+              const Expanded(child: Divider()),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: Text(
+                  'OR',
+                  style: GoogleFonts.poppins(color: Colors.grey),
+                ),
+              ),
+              const Expanded(child: Divider()),
+            ],
+          ),
+          const SizedBox(height: 25),
+
+          SizedBox(
+            width: double.infinity,
+            height: 55,
+            child: OutlinedButton.icon(
+              onPressed: () {},
+              icon: const Icon(Icons.g_mobiledata),
+              label: const Text('Continue with Google'),
+            ),
+          ),
+          const SizedBox(height: 30),
+
+          Center(
+            child: TextButton(
+              onPressed: () {},
+              child: const Text("Don't have an account? Create Account"),
             ),
           ),
         ],
-
-        const SizedBox(height: 10),
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton(
-            onPressed: () {},
-            child: const Text('Forgot Password?'),
-          ),
-        ),
-        const SizedBox(height: 20),
-
-        SizedBox(
-          width: double.infinity,
-          height: 55,
-          child: ElevatedButton(
-            onPressed: () {
-              if (checkLoginValidation()) {
-                Navigator.pushNamed(context, CustomRoutes.homeRoute);
-              }
-            },
-            child: const Text('Login'),
-          ),
-        ),
-        const SizedBox(height: 25),
-
-        Row(
-          children: [
-            const Expanded(child: Divider()),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: Text('OR', style: GoogleFonts.poppins(color: Colors.grey)),
-            ),
-            const Expanded(child: Divider()),
-          ],
-        ),
-        const SizedBox(height: 25),
-
-        SizedBox(
-          width: double.infinity,
-          height: 55,
-          child: OutlinedButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.g_mobiledata),
-            label: const Text('Continue with Google'),
-          ),
-        ),
-        const SizedBox(height: 30),
-
-        Center(
-          child: TextButton(
-            onPressed: () {},
-            child: const Text("Don't have an account? Create Account"),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
