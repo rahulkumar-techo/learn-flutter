@@ -6,6 +6,10 @@ class ApiEndpoints {
     return '$products/$productId';
   }
 
+  static String recommendedProductsUrl (String category){
+    return '$products/category/$category';
+  }
+
   static String getUri(String endpoint) => '$baseUrl$endpoint';
   // static const login = "/auth/login";
 }

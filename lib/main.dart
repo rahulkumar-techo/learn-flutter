@@ -32,7 +32,15 @@ class MyApp extends StatelessWidget {
       onGenerateRoute: (settings) {
         if (settings.name == CustomRoutes.productDetailsRoute) {
           // Extract the integer ID passed from ProductCard
-          final productId = settings.arguments as int;
+          final productId = settings.arguments;
+
+          if (productId is! int) {
+            return MaterialPageRoute(
+              builder: (context) => const Scaffold(
+                body: Center(child: Text('Product details not found.')),
+              ),
+            );
+          }
 
           return MaterialPageRoute(
             builder: (context) => ProductDetailsScreen(productId: productId),

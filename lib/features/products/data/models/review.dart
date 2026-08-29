@@ -15,11 +15,11 @@ class Review {
 
   factory Review.fromJson(Map<String, dynamic> json) {
     return Review(
-      rating: json['rating'],
-      comment: json['comment'],
-      date: json['date'],
-      reviewerName: json['reviewerName'],
-      reviewerEmail: json['reviewerEmail'],
+      rating: json['rating'] ?? 0,
+      comment: json['comment'] ?? '',
+      date: json['date'] ?? '',
+      reviewerName: json['reviewerName'] ?? '',
+      reviewerEmail: json['reviewerEmail'] ?? '',
     );
   }
 }

@@ -54,18 +54,19 @@ class Product {
 // Return the Product Object 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: json['id'],
+      id: json['id'] ?? 0,
       title: json['title'] ?? '',
       description: json['description'] ?? '',
       category: json['category'] ?? '',
-      price: (json['price'] as num).toDouble(),
-      discountPercentage: (json['discountPercentage'] as num).toDouble(),
-      rating: (json['rating'] as num).toDouble(),
-      stock: json['stock'],
+      price: (json['price'] as num?)?.toDouble() ?? 0,
+      discountPercentage:
+          (json['discountPercentage'] as num?)?.toDouble() ?? 0,
+      rating: (json['rating'] as num?)?.toDouble() ?? 0,
+      stock: json['stock'] ?? 0,
       tags: List<String>.from(json['tags'] ?? []),
       brand: json['brand'] ?? '',
       sku: json['sku'] ?? '',
-      weight: json['weight'],
+      weight: json['weight'] ?? 0,
       dimensions: Dimensions.fromJson(json['dimensions']),
       warrantyInformation: json['warrantyInformation'] ?? '',
       shippingInformation: json['shippingInformation'] ?? '',
@@ -74,7 +75,7 @@ class Product {
           .map((item) => Review.fromJson(item as Map<String, dynamic>))
           .toList(),
       returnPolicy: json['returnPolicy'] ?? '',
-      minimumOrderQuantity: json['minimumOrderQuantity'],
+      minimumOrderQuantity: json['minimumOrderQuantity'] ?? 0,
       meta: ProductMeta.fromJson(json['meta']),
       thumbnail: json['thumbnail'] ?? '',
       images: List<String>.from(json['images'] ?? []),
@@ -107,4 +108,3 @@ class ProductResponse {
     );
   }
 }
-

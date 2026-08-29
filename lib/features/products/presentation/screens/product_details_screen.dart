@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_app/core/network/api_client.dart';
 import 'package:my_app/features/products/data/models/product_response.dart';
 import 'package:my_app/features/products/presentation/widgets/meta_info.dart';
+import 'package:my_app/features/products/presentation/widgets/recommended_products.dart';
 import 'package:my_app/features/products/presentation/widgets/review_card.dart';
 import 'package:my_app/features/products/services/product_service.dart';
 
@@ -28,34 +29,36 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F8),
-      appBar: AppBar(title: const Text("Product Details"), centerTitle: true),
-      body: FutureBuilder<Product>(
-        future: _productDetailsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      // appBar: AppBar(title: const Text("Product Details"), centerTitle: true),
+      body: SafeArea(
+        child: FutureBuilder<Product>(
+          future: _productDetailsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (snapshot.hasError) {
-            return _MessageState(
-              icon: Icons.error_outline,
-              title: 'Unable to load product details',
-              message: snapshot.error.toString(),
-            );
-          }
+            if (snapshot.hasError) {
+              return _MessageState(
+                icon: Icons.error_outline,
+                title: 'Unable to load product details',
+                message: snapshot.error.toString(),
+              );
+            }
 
-          final product = snapshot.data;
+            final product = snapshot.data;
 
-          if (product == null) {
-            return const _MessageState(
-              icon: Icons.inventory_2_outlined,
-              title: 'Product details not found',
-              message: 'Please go back and select another product.',
-            );
-          }
+            if (product == null) {
+              return const _MessageState(
+                icon: Icons.inventory_2_outlined,
+                title: 'Product details not found',
+                message: 'Please go back and select another product.',
+              );
+            }
 
-          return ProductDetailsContent(product: product);
-        },
+            return ProductDetailsContent(product: product);
+          },
+        ),
       ),
     );
   }
@@ -85,6 +88,8 @@ class ProductDetailsContent extends StatelessWidget {
         MetaInfo(metaData: product.meta),
         const SizedBox(height: 18),
         Reviews(product: product),
+        const SizedBox(height: 18),
+        RecommendedProducts(category:product.category),
       ],
     );
   }

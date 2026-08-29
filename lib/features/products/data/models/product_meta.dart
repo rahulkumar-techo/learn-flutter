@@ -11,12 +11,14 @@ class ProductMeta {
     required this.qrCode,
   });
 
-  factory ProductMeta.fromJson(Map<String, dynamic> json) {
+  factory ProductMeta.fromJson(Map<String, dynamic>? json) {
+    final data = json ?? const <String, dynamic>{};
+
     return ProductMeta(
-      createdAt: json['createdAt'],
-      updatedAt: json['updatedAt'],
-      barcode: json['barcode'],
-      qrCode: json['qrCode'],
+      createdAt: data['createdAt'] ?? '',
+      updatedAt: data['updatedAt'] ?? '',
+      barcode: data['barcode'] ?? '',
+      qrCode: data['qrCode'] ?? '',
     );
   }
 }

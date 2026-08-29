@@ -9,11 +9,13 @@ class Dimensions {
     required this.depth,
   });
 
-  factory Dimensions.fromJson(Map<String, dynamic> json) {
+  factory Dimensions.fromJson(Map<String, dynamic>? json) {
+    final data = json ?? const <String, dynamic>{};
+
     return Dimensions(
-      width: (json['width'] as num).toDouble(),
-      height: (json['height'] as num).toDouble(),
-      depth: (json['depth'] as num).toDouble(),
+      width: (data['width'] as num?)?.toDouble() ?? 0,
+      height: (data['height'] as num?)?.toDouble() ?? 0,
+      depth: (data['depth'] as num?)?.toDouble() ?? 0,
     );
   }
 }

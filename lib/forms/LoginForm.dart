@@ -25,8 +25,13 @@ class _LoginFormState extends State<LoginForm> {
       _errorMessage = "";
     });
 
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+    final formState = _formKey.currentState;
+    if (formState == null) {
+      return;
+    }
+
+    if (formState.validate()) {
+      formState.save();
       // Inputs are valid; navigate to home screen
       Navigator.pushNamed(context, CustomRoutes.homeRoute);
     }

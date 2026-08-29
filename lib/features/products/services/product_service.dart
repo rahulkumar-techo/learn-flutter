@@ -19,7 +19,13 @@ class ProductService {
       ApiEndpoints.singleProductUrl(productId),
     );
 
-
     return Product.fromJson(response as Map<String, dynamic>);
+  }
+
+  Future<ProductResponse> getRecommendedItems(String category) async {
+    final response = await apiClient.get(
+      ApiEndpoints.recommendedProductsUrl(category),
+    );
+    return ProductResponse.fromJson(response as Map<String, dynamic>);
   }
 }
