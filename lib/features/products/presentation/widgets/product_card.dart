@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_app/features/products/data/models/product_response.dart';
-import 'package:my_app/utils/routes.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -15,12 +15,7 @@ class ProductCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () {
-          // Navigates securely down to the target dynamic product view
-          Navigator.pushNamed(
-            context,
-            CustomRoutes.productDetailsRoute,
-            arguments: product.id,
-          );
+           context.push('/product-details/${product.id}');
         },
 
         child: Column(

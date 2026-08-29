@@ -14,7 +14,7 @@ class MenuDrawer extends StatelessWidget {
       width: 280,
 
       // Main drawer background.
-      backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
 
       child: SafeArea(
         child: Column(
@@ -26,7 +26,7 @@ class MenuDrawer extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 20, 16, 20),
 
               decoration: const BoxDecoration(
-                color: Colors.white,
+                // color: Colors.white,
 
                 // Adds a subtle border below the profile section.
                 border: Border(

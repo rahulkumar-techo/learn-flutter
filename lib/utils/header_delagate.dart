@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 
-class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
+class HeaderDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
 
-  HomeHeaderDelegate({required this.child});
+  const HeaderDelegate({required this.child});
+
+  static const double _height = 126;
 
   @override
-  double get minExtent => 58;
+  double get minExtent => _height;
 
   @override
-  double get maxExtent => 58;
+  double get maxExtent => _height;
 
   @override
   Widget build(
@@ -17,11 +19,18 @@ class HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return Container( child: child);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        // Sets the background color to solid white
+        color: Colors.white,
+       
+      ),
+      child: child,
+    );
   }
 
   @override
-  bool shouldRebuild(covariant HomeHeaderDelegate oldDelegate) {
-    return oldDelegate.child != child;
+  bool shouldRebuild(covariant HeaderDelegate oldDelegate) {
+    return child != oldDelegate.child;
   }
 }

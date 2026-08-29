@@ -4,6 +4,7 @@ import 'package:my_app/core/network/api_client.dart';
 import 'package:my_app/features/products/data/models/product_response.dart';
 import 'package:my_app/features/products/presentation/widgets/product_card.dart';
 import 'package:my_app/features/products/services/product_service.dart';
+import 'package:my_app/utils/header_delagate.dart';
 import 'package:my_app/widgets/drawer.dart';
 import 'package:my_app/widgets/home_header.dart';
 
@@ -31,165 +32,148 @@ class _HomepageState extends State<Homepage> {
 
   @override
   Widget build(BuildContext context) {
-    // Moving LayoutBuilder to the top allows CustomScrollView to stay alive
-    // even while data loads, preventing focus loss in the Search bar.
+    // Obtain the precise system height occupied by the native status bar notch
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
-        // Change the status bar color.
-        statusBarColor: Colors.black,
+        //  Changed to white background
+        statusBarColor: Colors.white,
 
-        // Dark icons for a light status bar.
+        //  Dark icons for a light status bar background
         statusBarIconBrightness: Brightness.dark,
 
-        // iOS icon brightness.
+        //  iOS text icon brightness matching (light theme mode)
         statusBarBrightness: Brightness.light,
       ),
-
       child: Scaffold(
         drawer: const MenuDrawer(),
-            backgroundColor: Colors.white,
-        body: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final crossAxisCount = constraints.maxWidth >= 900
-                  ? 4
-                  : constraints.maxWidth >= 600
-                  ? 3
-                  : 2;
+        body: Column(
+          children: [
+            //  This forces an explicit white background behind the status bar notch area
+            Container(height: statusBarHeight, color: Colors.white),
+            Expanded(
+              child: SafeArea(
+                top: false, //  Prevents SafeArea from blanking out or fighting the status bar area
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final crossAxisCount = constraints.maxWidth >= 900
+                        ? 4
+                        : constraints.maxWidth >= 600
+                        ? 3
+                        : 2;
 
-              return CustomScrollView(
-                slivers: [
-                  SliverPersistentHeader(
-                    floating: true,
-                    pinned: false,
-
-                    delegate: _HomeHeaderDelegate(
-                      child: HomeHeader(
-                        searchItem: _searchQuery,
-                        sortItems: _currentSort,
-                        onSearchChanged: (value) {
-                          setState(() {
-                            _searchQuery = value;
-                          });
-                        },
-                        onSortPressed: () {
-                          // Implement your sorting state logic here
-                          setState(() {
-                            _currentSort = _currentSort == 'Price'
-                                ? ''
-                                : 'Price';
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-
-                  FutureBuilder<ProductResponse>(
-                    future: _productsFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const SliverFillRemaining(
-                          child: Center(child: CircularProgressIndicator()),
-                        );
-                      }
-
-                      if (snapshot.hasError) {
-                        return SliverFillRemaining(
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(24),
-                              child: Text(
-                                'Unable to load products.\n${snapshot.error}',
-                                textAlign: TextAlign.center,
+                    return RefreshIndicator(
+                      edgeOffset: 0,
+                      onRefresh: () async {
+                        setState(() {
+                          _loadProducts();
+                        });
+                      },
+                      child: CustomScrollView(
+                        // Always listens to gestures but prevents the grid items from stretching
+                        physics: const ClampingScrollPhysics(
+                          parent: AlwaysScrollableScrollPhysics(),
+                        ),
+                        slivers: [
+                          SliverPersistentHeader(
+                            floating: true,
+                            pinned: false,
+                            delegate: HeaderDelegate(
+                              child: HomeHeader(
+                                searchItem: _searchQuery,
+                                sortItems: _currentSort,
+                                onSearchChanged: (value) {
+                                  setState(() {
+                                    _searchQuery = value;
+                                  });
+                                },
+                                onSortPressed: () {
+                                  setState(() {
+                                    _currentSort = _currentSort == 'Price'
+                                        ? ''
+                                        : 'Price';
+                                  });
+                                },
                               ),
                             ),
                           ),
-                        );
-                      }
+                          FutureBuilder<ProductResponse>(
+                            future: _productsFuture,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const SliverFillRemaining(
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                );
+                              }
 
-                      // Apply filter updates safely locally across state changes
-                      final allProducts = snapshot.data?.products ?? [];
-                      final filteredProducts = allProducts.where((product) {
-                        final title = product.title.toLowerCase();
-                        return title.contains(_searchQuery.toLowerCase());
-                      }).toList();
+                              if (snapshot.hasError) {
+                                return SliverFillRemaining(
+                                  child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(24),
+                                      child: Text(
+                                        'Unable to load products.\n${snapshot.error}',
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
 
-                      if (filteredProducts.isEmpty) {
-                        return const SliverFillRemaining(
-                          child: Center(child: Text('No products found.')),
-                        );
-                      }
+                              final allProducts = snapshot.data?.products ?? [];
+                              final filteredProducts = allProducts.where((
+                                product,
+                              ) {
+                                final title = product.title.toLowerCase();
+                                return title.contains(
+                                  _searchQuery.toLowerCase(),
+                                );
+                              }).toList();
 
-                      return SliverPadding(
-                        padding: const EdgeInsets.all(16),
-                        sliver: SliverGrid(
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: crossAxisCount,
-                                crossAxisSpacing: 12,
-                                mainAxisSpacing: 12,
-                                childAspectRatio: 0.68,
-                              ),
-                          delegate: SliverChildBuilderDelegate((
-                            context,
-                            index,
-                          ) {
-                            return ProductCard(
-                              product: filteredProducts[index],
-                            );
-                          }, childCount: filteredProducts.length),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              );
-            },
-          ),
+                              if (filteredProducts.isEmpty) {
+                                return const SliverFillRemaining(
+                                  child: Center(
+                                    child: Text('No products found.'),
+                                  ),
+                                );
+                              }
+
+                              return SliverPadding(
+                                padding: const EdgeInsets.all(16),
+                                sliver: SliverGrid(
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: crossAxisCount,
+                                        crossAxisSpacing: 12,
+                                        mainAxisSpacing: 12,
+                                        childAspectRatio: 0.68,
+                                      ),
+                                  delegate: SliverChildBuilderDelegate((
+                                    context,
+                                    index,
+                                  ) {
+                                    return ProductCard(
+                                      product: filteredProducts[index],
+                                    );
+                                  }, childCount: filteredProducts.length),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
-  }
-}
-
-class _HomeHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final Widget child;
-
-  const _HomeHeaderDelegate({required this.child});
-
-  static const double _height = 126;
-
-  @override
-  double get minExtent => _height;
-
-  @override
-  double get maxExtent => _height;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: overlapsContent
-            ? [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ]
-            : null,
-      ),
-      child: child,
-    );
-  }
-
-  @override
-  bool shouldRebuild(covariant _HomeHeaderDelegate oldDelegate) {
-    return child != oldDelegate.child;
   }
 }

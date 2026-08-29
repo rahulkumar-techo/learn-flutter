@@ -47,7 +47,7 @@ class _HomeHeaderState extends State<HomeHeader> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
-
+      // color: Colors.white,
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: Color(0xFFE7E7EA), width: 1)),
       ),
