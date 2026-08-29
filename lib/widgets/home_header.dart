@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/widgets/category.dart';
 
 class HomeHeader extends StatefulWidget {
   final String? searchItem;
@@ -28,6 +29,15 @@ class _HomeHeaderState extends State<HomeHeader> {
   }
 
   @override
+  void didUpdateWidget(covariant HomeHeader oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final searchItem = widget.searchItem;
+    if (searchItem != null && searchItem != _searchController.text) {
+      _searchController.text = searchItem;
+    }
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
@@ -36,89 +46,113 @@ class _HomeHeaderState extends State<HomeHeader> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-      decoration: BoxDecoration(
-        // color: Colors.white,
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: Colors.black.withOpacity(0.03),
-        //     blurRadius: 10,
-        //     offset: const Offset(0, 4),
-        //   ),
-        // ],
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xFFE7E7EA), width: 1)),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Container(
-              height: 46,
-              decoration: BoxDecoration(
+          Row(
+            children: [
+              Material(
                 color: const Color(0xFFF5F5F7),
                 borderRadius: BorderRadius.circular(12),
-              ),
-              child: TextField(
-                controller: _searchController,
-                // Called when the user taps outside the TextField.
-                // Removes focus and stops the cursor from blinking.
-                onTapOutside: (_) {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                },
-                onChanged: widget.onSearchChanged,
-
-                decoration: InputDecoration(
-                  hintText: "Search items...",
-                  // FIXED: Removed the 'hide' keyword typo from the Color definition
-                  hintStyle: const TextStyle(
-                    color: Color(0xFF8A8A8E),
-                    fontSize: 15,
-                  ),
-
-                  prefixIcon: const Icon(
-                    Icons.search_rounded,
-                    color: Color(0xFF8A8A8E),
-                    size: 22,
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 11),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Material(
-            color: const Color(0xFFF5F5F7),
-            borderRadius: BorderRadius.circular(12),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: widget.onSortPressed,
-              child: Container(
-                height: 46,
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.swap_vert_rounded,
-                      color: Color(0xFF1C1C1E),
-                      size: 20,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () => Scaffold.maybeOf(context)?.openDrawer(),
+                  child: Container(
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFFE7E7EA)),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    if (widget.sortItems != null &&
-                        widget.sortItems!.isNotEmpty) ...[
-                      const SizedBox(width: 6),
-                      Text(
-                        widget.sortItems!,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF1C1C1E),
-                        ),
-                      ),
-                    ],
-                  ],
+                    child: const Icon(
+                      Icons.menu_rounded,
+                      color: Color(0xFF1C1C1E),
+                      size: 22,
+                    ),
+                  ),
                 ),
               ),
-            ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Container(
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F5F7),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE7E7EA)),
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    onTapOutside: (_) =>
+                        FocusManager.instance.primaryFocus?.unfocus(),
+                    onChanged: widget.onSearchChanged,
+                    decoration: const InputDecoration(
+                      hintText: "Search items...",
+                      hintStyle: TextStyle(
+                        color: Color(0xFF8A8A8E),
+                        fontSize: 15,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search_rounded,
+                        color: Color(0xFF8A8A8E),
+                        size: 22,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(vertical: 11),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Material(
+                color: const Color(0xFFF5F5F7),
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: widget.onSortPressed,
+                  child: Container(
+                    height: 46,
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFFE7E7EA)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.swap_vert_rounded,
+                          color: Color(0xFF1C1C1E),
+                          size: 20,
+                        ),
+                        if (widget.sortItems != null &&
+                            widget.sortItems!.isNotEmpty) ...[
+                          const SizedBox(width: 6),
+                          Text(
+                            widget.sortItems!,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1C1C1E),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
+
+          const SizedBox(height: 14),
+
+          const Categories(),
         ],
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:my_app/core/network/api_client.dart';
 import 'package:my_app/core/network/api_endpoints.dart';
+import 'package:my_app/features/products/data/models/categories.dart';
 import 'package:my_app/features/products/data/models/product_response.dart';
 
 class ProductService {
@@ -27,5 +28,10 @@ class ProductService {
       ApiEndpoints.recommendedProductsUrl(category),
     );
     return ProductResponse.fromJson(response as Map<String, dynamic>);
+  }
+  Future<CategoriesModalResponse> getCategoriesItems() async {
+    final response = await apiClient.get(ApiEndpoints.categoriesUrl);
+
+    return CategoriesModalResponse.fromJson(response);
   }
 }
