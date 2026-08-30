@@ -89,7 +89,7 @@ class _CategoriesState extends State<Categories> {
                           category.image,
                           width: 20,
                           height: 20,
-                          errorBuilder: (context, _, __) =>
+                          errorBuilder: (context, _, _) =>
                               const Icon(Icons.category_rounded, size: 16),
                         ),
                         const SizedBox(width: 6),
