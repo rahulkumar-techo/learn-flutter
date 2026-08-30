@@ -6,6 +6,7 @@ class HomeHeader extends StatefulWidget {
   final String? sortItems;
   final ValueChanged<String>? onSearchChanged;
   final VoidCallback? onSortPressed;
+  final FocusNode searchFocusNode;
 
   const HomeHeader({
     super.key,
@@ -13,6 +14,7 @@ class HomeHeader extends StatefulWidget {
     this.sortItems,
     this.onSearchChanged,
     this.onSortPressed,
+    required this.searchFocusNode,
   });
 
   @override
@@ -87,6 +89,7 @@ class _HomeHeaderState extends State<HomeHeader> {
                     border: Border.all(color: const Color(0xFFE7E7EA)),
                   ),
                   child: TextField(
+                     focusNode: widget.searchFocusNode,
                     controller: _searchController,
                     onTapOutside: (_) =>
                         FocusManager.instance.primaryFocus?.unfocus(),
