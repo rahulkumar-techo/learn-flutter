@@ -16,7 +16,6 @@ class _CategoriesState extends State<Categories> {
   @override
   void initState() {
     super.initState();
-
     _loadCategories();
   }
 
@@ -29,7 +28,6 @@ class _CategoriesState extends State<Categories> {
     return FutureBuilder(
       future: _categories,
       builder: (context, snapshot) {
-        // Display Indicator while loading data
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const SizedBox(
             height: 40,
@@ -47,7 +45,6 @@ class _CategoriesState extends State<Categories> {
           return const SizedBox.shrink();
         }
 
-        // Adjust this mapping path depending on how your actual CategoriesModalResponse is structured
         final categoryList = snapshot.data?.categories ?? [];
 
         if (categoryList.isEmpty) {
@@ -56,61 +53,78 @@ class _CategoriesState extends State<Categories> {
 
         return SizedBox(
           height: 38,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            separatorBuilder: (context, index) => const SizedBox(width: 8),
-            itemCount: categoryList.length,
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (notification) =>
+                notification.metrics.axis == Axis.horizontal,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              // ✅ FIXED: Prevents scroll interference with the main vertical viewport
+              physics: const ClampingScrollPhysics(), 
+              separatorBuilder: (context, index) => const SizedBox(width: 8),
+              itemCount: categoryList.length,
+              itemBuilder: (context, index) {
+                final category = categoryList[index];
 
-            itemBuilder: (context, index) {
-              final category = categoryList[index];
-
-              return InkWell(
-                onTap: () {
-                  // Handle filtering items by category.slug here
-                },
-
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F7),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-
-                    children: [
-                      // Renders remote networks image smoothly; defaults safely if missing
-                      if (category.image.isNotEmpty) ...[
-                        Image.network(
-                          category.image,
-                          width: 20,
-                          height: 20,
-                          errorBuilder: (context, _, _) =>
-                              const Icon(Icons.category_rounded, size: 16),
+                return InkWell(
+                  onTap: () {
+                    // Handle filtering items by category.slug here
+                  },
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F5F7),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    // ✅ FIXED: Changed from Column to Row so the icon fits perfectly 
+                    // within the 38px bounds without getting truncated out of view.
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        if (category.image != null && category.image!.isNotEmpty) ...[
+                          Image.network(
+                            category.image!,
+                            width: 18,
+                            height: 18,
+                            fit: BoxFit.contain,
+                            // ✅ FIXED: Now fits cleanly inside the Row structure
+                            errorBuilder: (context, _, _) => const Icon(
+                              Icons.category_rounded, 
+                              size: 16,
+                              color: Color(0xFF8A8A8E),
+                            ),
+                          ),
+                          const SizedBox(width: 6), // Adds horizontal breathing space
+                        ] else ...[
+                          // ✅ Fallback if the image URL string itself is completely missing
+                          const Icon(
+                            Icons.category_rounded, 
+                            size: 16,
+                            color: Color(0xFF8A8A8E),
+                          ),
+                          const SizedBox(width: 6),
+                        ],
+                        Text(
+                          category.name,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF1C1C1E),
+                          ),
                         ),
-                        const SizedBox(width: 6),
                       ],
-                      Text(
-                        category.name,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF1C1C1E),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         );
       },
     );
   }
 }
-// child: FutureBuilder<ProductResponse>(

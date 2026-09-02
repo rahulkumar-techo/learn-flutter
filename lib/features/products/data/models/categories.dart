@@ -1,7 +1,7 @@
 class CategoriesModal {
   final String slug;
   final String name;
-  final String image;
+  final String? image;
 
   CategoriesModal({
     required this.slug,

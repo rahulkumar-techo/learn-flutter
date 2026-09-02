@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -10,7 +9,6 @@ class ScaffoldWithNavBar extends StatefulWidget {
     super.key,
   });
 
-  /// Provides the active tab and handles switching between shell branches.
   final StatefulNavigationShell navigationShell;
 
   @override
@@ -25,34 +23,23 @@ class _ScaffoldWithNavBarState
   @override
   Widget build(BuildContext context) {
     return NotificationListener<ScrollUpdateNotification>(
-      /// Listen to scroll direction from the current screen.
+      // ✅ Intercepts scroll signals safely
       onNotification: _handleScroll,
 
       child: Scaffold(
         drawer: const MenuDrawer(),
-
-        /// Displays the currently selected StatefulShellRoute branch.
         body: widget.navigationShell,
-
-        /// Bottom navigation hides on scroll down
-        /// and appears again on scroll up.
         bottomNavigationBar: _AnimatedBottomNav(
           isVisible: _isBottomNavVisible,
-
           child: BottomNavigationBar(
-            currentIndex:
-                widget.navigationShell.currentIndex,
-
-            /// Switch to the selected shell branch.
+            currentIndex: widget.navigationShell.currentIndex,
             onTap: _goToBranch,
-
             items: const [
               BottomNavigationBarItem(
                 icon: Icon(Icons.home_outlined),
                 activeIcon: Icon(Icons.home),
                 label: 'Home',
               ),
-
               BottomNavigationBarItem(
                 icon: Icon(Icons.school_outlined),
                 activeIcon: Icon(Icons.school),
@@ -65,23 +52,21 @@ class _ScaffoldWithNavBarState
     );
   }
 
-  /// Switches between StatefulShellRoute tabs.
-  ///
-  /// Re-tapping the active tab returns to its initial location.
   void _goToBranch(int index) {
     widget.navigationShell.goBranch(
       index,
-      initialLocation:
-          index == widget.navigationShell.currentIndex,
+      initialLocation: index == widget.navigationShell.currentIndex,
     );
   }
 
-  /// Detects scroll direction:
-  /// - Positive delta → scrolling down → hide navbar.
-  /// - Negative delta → scrolling up → show navbar.
-  bool _handleScroll(
-    ScrollUpdateNotification notification,
-  ) {
+  /// Detects scroll direction
+  bool _handleScroll(ScrollUpdateNotification notification) {
+    // ✅ FIX 1: Explicitly check that the notification is coming from the main vertical axis (depth == 0)
+    // This immediately stops horizontal list views (like Categories) from triggering setState().
+    if (notification.metrics.axis != Axis.vertical || notification.depth != 0) {
+      return false;
+    }
+
     final delta = notification.scrollDelta;
 
     if (delta == null || delta.abs() < 5) {
@@ -102,16 +87,9 @@ class _ScaffoldWithNavBarState
       });
     }
 
-    // Allow the notification to continue to other listeners.
     return false;
   }
 }
-
-/// Animates the bottom navigation visibility.
-///
-/// AnimatedSlide moves it vertically.
-/// AnimatedOpacity provides a smoother transition.
-
 
 class _AnimatedBottomNav extends StatelessWidget {
   const _AnimatedBottomNav({
@@ -135,12 +113,8 @@ class _AnimatedBottomNav extends StatelessWidget {
         return ClipRect(
           child: Align(
             alignment: Alignment.topCenter,
-
-            /// Shrinks the entire bottom navigation layout.
             heightFactor: value,
-
             child: Transform.translate(
-              /// Adds a smooth slide-down effect.
               offset: Offset(0, 80 * (1 - value)),
               child: child,
             ),
@@ -150,4 +124,3 @@ class _AnimatedBottomNav extends StatelessWidget {
     );
   }
 }
-

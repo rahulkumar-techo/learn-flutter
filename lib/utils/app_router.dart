@@ -7,16 +7,15 @@ import 'package:my_app/screens/onboarding_screen.dart';
 import 'package:my_app/utils/routes.dart';
 import 'package:my_app/utils/scaffold_nav_bar.dart';
 
-final _homeNavigatorKey = GlobalKey<NavigatorState>(
-  debugLabel: 'home',
-);
-
-final _onboardingNavigatorKey = GlobalKey<NavigatorState>(
-  debugLabel: 'onboarding',
-);
+// ✅ Restructure by containing the keys explicitly or providing a dedicated root key 
+// to prevent shell tree state collisions during active inner view rebuilds.
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+final GlobalKey<NavigatorState> _homeNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'home');
+final GlobalKey<NavigatorState> _onboardingNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'onboarding');
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
+  navigatorKey: _rootNavigatorKey, // ✅ Explicitly define the parent anchor
 
   routes: [
     /// Detail screen is outside the shell.
@@ -24,6 +23,7 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: CustomRoutes.productDetailsRoute,
       name: 'productDetails',
+      parentNavigatorKey: _rootNavigatorKey, // ✅ Force details to build on root, separating its lifecycles
       builder: (context, state) {
         final productId =
             int.tryParse(state.pathParameters['productId'] ?? '') ?? 0;
@@ -48,7 +48,7 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: '/',
               name: 'home',
-              builder: (context, state) => Homepage(),
+              builder: (context, state) => const Homepage(), // ✅ Use const constructor if applicable
             ),
           ],
         ),
@@ -60,7 +60,7 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: '/onboarding',
               name: 'onboarding',
-              builder: (context, state) => OnboardingScreen(),
+              builder: (context, state) => const OnboardingScreen(),
             ),
           ],
         ),

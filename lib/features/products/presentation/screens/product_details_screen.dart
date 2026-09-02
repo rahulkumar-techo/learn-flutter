@@ -1,9 +1,14 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_app/core/network/api_client.dart';
 import 'package:my_app/features/products/data/models/product_response.dart';
 import 'package:my_app/features/products/presentation/widgets/meta_info.dart';
+import 'package:my_app/features/products/presentation/widgets/product_details_bottomSheet.dart';
 import 'package:my_app/features/products/presentation/widgets/recommended_products.dart';
 import 'package:my_app/features/products/presentation/widgets/review_card.dart';
+import 'package:my_app/features/products/presentation/widgets/section_surface.dart';
 import 'package:my_app/features/products/services/product_service.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
@@ -69,28 +74,78 @@ class ProductDetailsContent extends StatelessWidget {
 
   const ProductDetailsContent({super.key, required this.product});
 
+  // ✅ Change return type to Widget, name it cleanly, and ensure 'context' is available
+  Widget _buildBackButton(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+        
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () {
+          context.pop();
+        },
+        child: const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
-      children: [
-        ProductImageGallery(
-          thumbnail: product.thumbnail,
-          images: product.images,
-        ),
-        const SizedBox(height: 18),
-        ProductSummary(product: product),
-        const SizedBox(height: 14),
-        ProductDescription(description: product.description),
-        const SizedBox(height: 14),
-        ProductInfoGrid(product: product),
-        const SizedBox(height: 18),
-        MetaInfo(metaData: product.meta),
-        const SizedBox(height: 18),
-        Reviews(product: product),
-        const SizedBox(height: 18),
-        RecommendedProducts(category:product.category),
-      ],
+    final statusBarHeight = MediaQuery.of(context).padding.top;
+
+    return Scaffold(
+      body: Stack(
+        children: [
+          // 1. The Main Content Layer (Scrolls underneath the button)
+          SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+            child: Column(
+              // ✅ FIXED: Added the required Column wrapper child block
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Push the content down past the system battery status bar
+                Container(height: statusBarHeight),
+
+                ProductImageGallery(
+                  thumbnail: product.thumbnail,
+                  images: product.images,
+                ),
+                const SizedBox(height: 18),
+                ProductSummary(product: product),
+                const SizedBox(height: 18),
+                const ProductDetailsBottomsheet(),
+                const SizedBox(height: 14),
+                ProductDescription(description: product.description),
+                const SizedBox(height: 14),
+                ProductInfoGrid(product: product),
+                const SizedBox(height: 18),
+                MetaInfo(metaData: product.meta),
+                const SizedBox(height: 18),
+                Reviews(product: product),
+                const SizedBox(height: 18),
+                RecommendedProducts(category: product.category),
+              ],
+            ),
+          ),
+
+          // 2. The Absolute Layer (Floats fixed on top at all times)
+          // ✅ FIXED: Moved outside SingleChildScrollView so it pins perfectly to the Stack coordinate window
+          Positioned(
+            top:
+                statusBarHeight +
+                2, // Pins it 12px below your device status bar
+            left: 16,
+            child: _buildBackButton(context),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -201,7 +256,7 @@ class ProductSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return _SectionSurface(
+    return SectionSurface(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -262,7 +317,7 @@ class ProductDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _SectionSurface(
+    return SectionSurface(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -288,7 +343,7 @@ class ProductInfoGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final dimensions = product.dimensions;
 
-    return _SectionSurface(
+    return SectionSurface(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -384,24 +439,6 @@ class Reviews extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _SectionSurface extends StatelessWidget {
-  final Widget child;
-
-  const _SectionSurface({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Padding(padding: const EdgeInsets.all(16), child: child),
     );
   }
 }
